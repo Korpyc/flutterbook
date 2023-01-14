@@ -9,7 +9,7 @@ class StoryProvider extends ChangeNotifier implements ControlsInterface {
   }) : _currentStory = currentStory;
 
   factory StoryProvider.fromPath(String? path, List<ComponentState> stories) {
-    final storyPath = path?.replaceFirst('/stories/', '') ?? '';
+    final storyPath = path?.replaceFirst('/', '') ?? '';
     ComponentState? story;
     for (final element in stories) {
       if (element.path == storyPath) story = element;

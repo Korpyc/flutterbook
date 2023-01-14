@@ -108,8 +108,8 @@ class _FlutterBookState extends State<FlutterBook> {
                       headerPadding: widget.headerPadding,
                       categories: context.watch<List<Category>>().toList(),
                       onComponentSelected: (child) {
-                        navigator.currentState!.pushReplacementNamed(
-                            '/stories/${child?.path ?? ''}');
+                        navigator.currentState!
+                            .pushReplacementNamed('/${child?.path ?? ''}');
                         context
                             .read<CanvasDelegateProvider>()
                             .storyProvider!
