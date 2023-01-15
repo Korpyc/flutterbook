@@ -1,9 +1,11 @@
+import 'package:flutter/foundation.dart' as foundation;
 import 'package:flutter/material.dart';
 import 'package:flutterbook/src/editor/providers/device_preview_provider.dart';
 import 'package:flutterbook/src/editor/providers/pan_provider.dart';
 import 'package:flutterbook/src/editor/providers/tab_provider.dart';
 import 'package:flutterbook/src/utils/flutter_book_theme.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'editor/editor.dart';
 import 'navigation/navigation.dart';
@@ -67,6 +69,8 @@ class _FlutterBookState extends State<FlutterBook> {
   void initState() {
     if (widget.darkTheme != null) Styles.darkTheme = widget.darkTheme!;
     if (widget.theme != null) Styles.lightTheme = widget.theme!;
+
+    if (foundation.kIsWeb) usePathUrlStrategy();
 
     super.initState();
   }
