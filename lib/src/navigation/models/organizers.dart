@@ -1,61 +1,66 @@
-import 'package:flutter/material.dart';
-import 'package:recase/recase.dart';
+import 'package:flutter/widgets.dart';
 
-import '../../routing/controls.dart';
-
-abstract class Organizer {
-  final List<Organizer> organizers;
-  final OrganizerType type;
+abstract class BookOrganizer {
   final String name;
-  Organizer? parent;
+  final List<BookOrganizer> organizers;
+  final OrganizerType type;
+  BookOrganizer? parent;
 
   /// Abstract class for organizer panel in the left.
-  Organizer(this.name, this.type, this.organizers);
+  BookOrganizer({
+    required this.name,
+    required this.organizers,
+    required this.type,
+  });
 }
 
-enum OrganizerType { category, component, folder }
+enum OrganizerType { categoty, folder, page }
 
-class Category extends Organizer {
-  final String categoryName;
-
-  Category({required this.categoryName, required List<Organizer> organizers})
-      : super(categoryName, OrganizerType.category, organizers) {
-    for (final Organizer organizer in organizers) {
+class BookCategory extends BookOrganizer {
+  BookCategory({
+    required String folderName,
+    required List<BookOrganizer> organizers,
+  }) : super(
+          name: folderName,
+          organizers: organizers,
+          type: OrganizerType.categoty,
+        ) {
+    for (final BookOrganizer organizer in organizers) {
       organizer.parent = this;
     }
   }
 }
 
-class Folder extends Organizer {
-  final String folderName;
-
-  Folder({required this.folderName, required List<Organizer> organizers})
-      : super(folderName, OrganizerType.folder, organizers) {
-    for (final Organizer organizer in organizers) {
+class BookFolder extends BookOrganizer {
+  BookFolder({
+    required String folderName,
+    required List<BookOrganizer> organizers,
+  }) : super(
+          name: folderName,
+          organizers: organizers,
+          type: OrganizerType.folder,
+        ) {
+    for (final BookOrganizer organizer in organizers) {
       organizer.parent = this;
     }
   }
 }
 
-class Component extends Organizer {
-  final String componentName;
+class BookPage extends BookOrganizer {
+  final String pageName;
+  final Widget page;
 
-  /// Markdown with documentation for the component.
-  final String? componentMarkdown;
-  final List<ComponentState> states;
-
-  Component({
-    required this.componentName,
-    this.componentMarkdown,
-    required this.states,
-  }) : super(componentName, OrganizerType.component, const <Organizer>[]) {
-    for (final ComponentState state in states) {
-      state.parent = this;
-    }
-  }
+  BookPage({
+    required this.pageName,
+    required this.page,
+  }) : super(
+          name: pageName,
+          type: OrganizerType.page,
+          organizers: [],
+        );
 }
 
-class ComponentState {
+/* class ComponentState {
   Component? parent;
   final String? markdown;
   final String stateName;
@@ -104,7 +109,7 @@ class ComponentState {
         stateName: stateName,
         codeSample: codeSample,
       );
-}
+} */
 
 class ListItem<T> {
   final String title;
