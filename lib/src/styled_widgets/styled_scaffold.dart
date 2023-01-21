@@ -1,16 +1,30 @@
 import 'package:flutter/material.dart';
 
-class StyledScaffold extends StatelessWidget {
-  final Widget? body;
+class ScaffoldWithNavPanel extends StatelessWidget {
+  final Widget navPanel;
+  final Widget? child;
 
-  const StyledScaffold({Key? key, this.body}) : super(key: key);
+  const ScaffoldWithNavPanel({
+    required this.navPanel,
+    this.child,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: WidgetsBinding.instance.focusManager.primaryFocus?.unfocus,
       child: Scaffold(
-        body: body,
+        body: Row(
+          children: [
+            navPanel,
+            Expanded(
+              child: Container(
+                child: child,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
