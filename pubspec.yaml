@@ -17,6 +17,7 @@ dependencies:
   google_fonts: ^2.1.0
   provider: "^6.0.1"
   recase: ^4.0.0
+  go_router: ^6.0.1
 
 dev_dependencies:
   flutter_lints: ^1.0.4
