@@ -20,9 +20,13 @@ class Storyboard extends StatelessWidget {
           organizers: [
             BookFolder(
               folderName: 'Charts',
-              organizers: [
+              pages: [
                 BookPage(
                   pageName: 'LineGraph',
+                  page: Container(),
+                ),
+                BookPage(
+                  pageName: 'StackedGraph',
                   page: Container(),
                 ),
               ],
@@ -42,6 +46,29 @@ class Storyboard extends StatelessWidget {
               ),
             ),
           ],
+        ),
+        BookFolder(
+          folderName: 'Charts',
+          pages: [
+            BookPage(
+              pageName: 'LineGraph',
+              page: Container(),
+            ),
+          ],
+        ),
+        BookPage(
+          pageName: 'Button',
+          page: Center(
+            child: SizedBox(
+              width: 100,
+              height: 100,
+              child: CupertinoButton(
+                color: Colors.red,
+                onPressed: () {},
+                child: Text('Hello World'),
+              ),
+            ),
+          ),
         ),
       ],
     );

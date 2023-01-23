@@ -16,11 +16,17 @@ abstract class BookOrganizer {
 
 enum OrganizerType { categoty, folder, page }
 
+/// support only nested folders and pages
 class BookCategory extends BookOrganizer {
   BookCategory({
     required String folderName,
     required List<BookOrganizer> organizers,
-  }) : super(
+  })  : assert(
+          organizers.any(
+            (element) => element is BookFolder || element is BookPage,
+          ),
+        ),
+        super(
           name: folderName,
           organizers: organizers,
           type: OrganizerType.categoty,
@@ -34,13 +40,14 @@ class BookCategory extends BookOrganizer {
 class BookFolder extends BookOrganizer {
   BookFolder({
     required String folderName,
-    required List<BookOrganizer> organizers,
-  }) : super(
+    required List<BookPage> pages,
+  })  : assert(pages.isNotEmpty),
+        super(
           name: folderName,
-          organizers: organizers,
+          organizers: pages,
           type: OrganizerType.folder,
         ) {
-    for (final BookOrganizer organizer in organizers) {
+    for (final BookOrganizer organizer in pages) {
       organizer.parent = this;
     }
   }

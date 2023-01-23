@@ -101,6 +101,7 @@ class RouterUtil {
     BookOrganizer organizer, {
     bool isTop = false,
   }) {
+    var routePath = (isTop ? '/' : '') + ReCase(organizer.name).snakeCase;
     switch (organizer.type) {
       case OrganizerType.categoty:
       case OrganizerType.folder:
@@ -110,7 +111,6 @@ class RouterUtil {
                 (element) => _createRoute(element),
               )
               .toList();
-          var routePath = (isTop ? '/' : '') + ReCase(organizer.name).snakeCase;
 
           return GoRoute(
             path: routePath,
@@ -131,10 +131,9 @@ class RouterUtil {
         }
       case OrganizerType.page:
         {
-          var path = ReCase(organizer.name).snakeCase;
           var page = (organizer as BookPage).page;
           return GoRoute(
-            path: path,
+            path: routePath,
             builder: (context, state) => page,
           );
         }

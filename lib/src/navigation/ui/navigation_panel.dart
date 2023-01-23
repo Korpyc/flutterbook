@@ -11,16 +11,12 @@ import '../navigation.dart';
 class NavigationPanel extends StatefulWidget {
   const NavigationPanel({
     Key? key,
-    required this.categories,
-    this.onComponentSelected,
-    this.headerPadding,
+    required this.pages,
     this.header,
   }) : super(key: key);
 
-  final List<Category> categories;
-  final void Function(ComponentState?)? onComponentSelected;
+  final List<BookOrganizer> pages;
   final Widget? header;
-  final EdgeInsetsGeometry? headerPadding;
 
   @override
   _NavigationPanelState createState() => _NavigationPanelState();
@@ -28,83 +24,93 @@ class NavigationPanel extends StatefulWidget {
 
 class _NavigationPanelState extends State<NavigationPanel> {
   final ScrollController controller = ScrollController();
-  ComponentState? selectedComponent;
+  // ComponentState? selectedComponent;
 
   final TextEditingController search = TextEditingController();
   String query = '';
 
-  void _onComponentSelected(ComponentState state) {
+  /* void _onComponentSelected(ComponentState state) {
     ComponentState? current = state;
     if (current == selectedComponent) current = null;
     widget.onComponentSelected?.call(current);
     selectedComponent = current;
     setState(() {});
+  } */
+
+  List<Widget> tiles = [];
+
+  @override
+  void didChangeDependencies() {
+    tiles.clear();
+    for (var element in widget.pages) {
+      tiles.add(
+        _buildElement(element, 1),
+      );
+    }
+    super.didChangeDependencies();
   }
 
-  Widget _buildCategories(BuildContext context, int i) {
-    final Category item = widget.categories[i];
+  Widget _buildElement(BookOrganizer item, int level) {
+    switch (item.type) {
+      case OrganizerType.categoty:
+        return _buildCategory(item as BookCategory);
+      case OrganizerType.folder:
+        return _buildFolder(item as BookFolder, level);
+      case OrganizerType.page:
+        return _buildPage(item as BookPage, level);
+    }
+  }
+
+  Widget _buildCategory(
+    final BookCategory item,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Padding(
           padding:
-              const EdgeInsets.only(top: 12.0, bottom: 4, left: 20, right: 20),
+              const EdgeInsets.only(top: 12.0, bottom: 4, left: 24, right: 16),
           child: Text(
             item.name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: context.textTheme.subtitle2!.copyWith(
               fontWeight: FontWeight.w600,
               letterSpacing: 2,
             ),
           ),
         ),
-        ..._buildOrganizers(item, 1, query)
+        ...item.organizers
+            .map(
+              (e) => _buildElement(e, 1),
+            )
+            .toList(),
       ],
     );
   }
 
-  List<Widget> _buildOrganizers(Organizer category, int layer, String query) {
-    final List<Widget> organizers = <Widget>[];
-    final double layerPadding = layer * 6.0;
-    for (final Organizer item in category.organizers) {
-      final List<Widget> current = <Widget>[];
-      switch (item.type) {
-        case OrganizerType.folder:
-          current.add(
-            FolderTile(
-              organizers: _buildOrganizers(item, layer + 3, query),
-              padding: layerPadding,
-              item: item,
-            ),
-          );
-          break;
-        case OrganizerType.component:
-          final lowerQuery = query.toLowerCase();
-          if (query.isEmpty || item.name.toLowerCase().contains(lowerQuery)) {
-            current.add(
-              ComponentTile(
-                states: (item as Component)
-                    .states
-                    .map(
-                      (e) => ComponentStateTile(
-                        isSelected: selectedComponent == e,
-                        onSelected: _onComponentSelected,
-                        padding: layerPadding,
-                        item: e,
-                      ),
-                    )
-                    .toList(),
-                padding: layerPadding,
-                item: item,
-              ),
-            );
-          }
-          break;
-        default:
-      }
-      organizers.add(Column(children: current));
-    }
-    return organizers;
+  Widget _buildFolder(BookFolder folder, int layer) {
+    double padding = layer * 8;
+    return BookFolderTile(
+      organizers: folder.organizers
+          .map(
+            (e) => _buildElement(e, layer + 1),
+          )
+          .toList(),
+      padding: padding,
+      item: folder,
+    );
+  }
+
+  Widget _buildPage(BookPage page, int layer) {
+    double padding = layer * 8;
+    return BookPageTile(
+      page: page,
+      onSelected: (p0) {},
+      isSelected: false,
+      padding: padding,
+    );
   }
 
   void _searchOrganizers(String query) {
@@ -143,18 +149,18 @@ class _NavigationPanelState extends State<NavigationPanel> {
           Expanded(
             child: Builder(
               builder: (context) {
-                if (kIsWeb) {
-                  // If web, we just disable smooth scrolling.
-                  return ListView.separated(
-                    controller: controller,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    itemCount: widget.categories.length,
-                    itemBuilder: _buildCategories,
-                    padding: const EdgeInsets.only(bottom: 8),
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 8),
-                  );
-                } else {
+                // if (kIsWeb) {
+                // If web, we just disable smooth scrolling.
+                return ListView.separated(
+                  controller: controller,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  itemCount: tiles.length,
+                  itemBuilder: (context, index) => tiles[index],
+                  padding: const EdgeInsets.only(bottom: 8),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 8),
+                );
+                /*}  else {
                   // If windows or macos we can allow smooth scrolling.
                   if (Platform.isMacOS || Platform.isWindows) {
                     return SmoothScroll(
@@ -164,8 +170,8 @@ class _NavigationPanelState extends State<NavigationPanel> {
                       child: ListView.separated(
                         controller: controller,
                         physics: const NeverScrollableScrollPhysics(),
-                        itemCount: widget.categories.length,
-                        itemBuilder: _buildCategories,
+                        itemCount: widget.pages.length,
+                        itemBuilder: _buildFolder,
                         padding: const EdgeInsets.only(bottom: 8),
                         separatorBuilder: (context, index) =>
                             const SizedBox(height: 8),
@@ -176,14 +182,14 @@ class _NavigationPanelState extends State<NavigationPanel> {
                     return ListView.separated(
                       controller: controller,
                       physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: widget.categories.length,
-                      itemBuilder: _buildCategories,
+                      itemCount: widget.pages.length,
+                      itemBuilder: _buildFolder,
                       padding: const EdgeInsets.only(bottom: 8),
                       separatorBuilder: (context, index) =>
                           const SizedBox(height: 8),
                     );
-                  }
-                }
+                  } 
+                } */
               },
             ),
           ),

@@ -8,55 +8,65 @@ import '../models/organizers.dart';
 
 //ignore_for_file: must_call_super
 
-class ComponentStateTile extends StatefulWidget {
-  const ComponentStateTile({
+class BookPageTile extends StatefulWidget {
+  const BookPageTile({
     Key? key,
-    required this.item,
-    required this.padding,
     required this.onSelected,
+    required this.padding,
+    required this.page,
     this.isSelected = false,
   }) : super(key: key);
 
-  final void Function(ComponentState) onSelected;
-  final ComponentState item;
+  final void Function(BookPage page) onSelected;
+
   final double padding;
+  final BookPage page;
+
   final bool isSelected;
 
   @override
-  _ComponentStateTileState createState() => _ComponentStateTileState();
+  _BookPageTileState createState() => _BookPageTileState();
 }
 
-class _ComponentStateTileState extends State<ComponentStateTile>
+class _BookPageTileState extends State<BookPageTile>
     with AutomaticKeepAliveClientMixin {
   bool hover = false;
 
   @override
   Widget build(BuildContext context) {
-    final Color hoverColor = widget.isSelected || hover
-        ? context.colorScheme.onPrimary
+    final Color hoverColor = widget.isSelected
+        ? context.colorScheme.primary
         : context.colorScheme.onSurface;
 
     return Highlighter(
       onEnter: (_) => setState(() => hover = true),
       onExit: (_) => setState(() => hover = false),
+      color:
+          context.colorScheme.primary.withOpacity(widget.isSelected ? 1 : 0.3),
       overrideHover: widget.isSelected,
-      onPressed: () => widget.onSelected(widget.item),
+      onPressed: () => widget.onSelected(widget.page),
       child: Container(
-        padding: EdgeInsets.fromLTRB(widget.padding, 4, 0, 4),
+        padding: EdgeInsets.fromLTRB(widget.padding, 4, 16, 4),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
           children: [
-            const SizedBox(width: 32),
+            const SizedBox(width: 16),
             Icon(
-              FeatherIcons.bookmark,
+              widget.isSelected ? FeatherIcons.bookOpen : FeatherIcons.book,
               size: 14,
-              color: widget.isSelected || hover
+              color: widget.isSelected
                   ? context.colorScheme.onPrimary
                   : context.colorScheme.secondary,
             ),
             const SizedBox(width: 8),
-            Text(
-              widget.item.stateName,
-              style: context.textTheme.bodyText1!.copyWith(color: hoverColor),
+            Flexible(
+              child: Text(
+                widget.page.name,
+                style: context.textTheme.bodyText1!.copyWith(color: hoverColor),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
@@ -68,144 +78,90 @@ class _ComponentStateTileState extends State<ComponentStateTile>
   bool get wantKeepAlive => true;
 }
 
-class ComponentTile extends StatefulWidget {
-  const ComponentTile({
-    Key? key,
-    required this.states,
-    required this.padding,
-    required this.item,
-  }) : super(key: key);
-
-  final List<Widget> states;
-  final Organizer item;
-  final double padding;
-
-  @override
-  _ComponentTileState createState() => _ComponentTileState();
-}
-
-class _ComponentTileState extends State<ComponentTile>
-    with AutomaticKeepAliveClientMixin {
-  bool expanded = false;
-  bool hover = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final Color hoverColor =
-        hover ? context.colorScheme.onPrimary : context.colorScheme.onSurface;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Highlighter(
-          onEnter: (_) => setState(() => hover = true),
-          onExit: (_) => setState(() => hover = false),
-          onPressed: () => setState(() => expanded = !expanded),
-          cursor:
-              (widget.states.isNotEmpty) ? null : SystemMouseCursors.forbidden,
-          child: Container(
-            padding: EdgeInsets.fromLTRB(widget.padding, 4, 0, 4),
-            child: Row(
-              children: [
-                if (widget.states.isNotEmpty)
-                  Icon(FeatherIcons.chevronDown, size: 12, color: hoverColor)
-                else
-                  const SizedBox(width: 12),
-                const SizedBox(width: 4),
-                Icon(
-                  FeatherIcons.book,
-                  size: 14,
-                  color: hover
-                      ? context.colorScheme.onPrimary
-                      : context.colorScheme.secondaryContainer,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  widget.item.name,
-                  style:
-                      context.textTheme.bodyText1!.copyWith(color: hoverColor),
-                ),
-              ],
-            ),
-          ),
-        ),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 100),
-          child: expanded ? Column(children: widget.states) : Container(),
-        ),
-      ],
-    );
-  }
-
-  @override
-  bool get wantKeepAlive => true;
-}
-
-class FolderTile extends StatefulWidget {
-  const FolderTile({
+class BookFolderTile extends StatefulWidget {
+  const BookFolderTile({
     Key? key,
     required this.organizers,
-    required this.padding,
     required this.item,
+    required this.padding,
   }) : super(key: key);
 
   final List<Widget> organizers;
-  final Organizer item;
   final double padding;
+  final BookOrganizer item;
 
   @override
-  _FolderTileState createState() => _FolderTileState();
+  _BookFolderTileState createState() => _BookFolderTileState();
 }
 
-class _FolderTileState extends State<FolderTile>
+class _BookFolderTileState extends State<BookFolderTile>
     with AutomaticKeepAliveClientMixin {
   bool expanded = false;
   bool hover = false;
 
   @override
   Widget build(BuildContext context) {
-    final Color hoverColor =
-        hover ? context.colorScheme.onPrimary : context.colorScheme.onSurface;
-
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Highlighter(
           onEnter: (_) => setState(() => hover = true),
           onExit: (_) => setState(() => hover = false),
           onPressed: () => setState(() => expanded = !expanded),
-          cursor: (widget.organizers.isNotEmpty)
-              ? null
-              : SystemMouseCursors.forbidden,
+          color: context.colorScheme.primary.withOpacity(0.3),
           child: Container(
-            padding: EdgeInsets.fromLTRB(widget.padding, 4, 0, 4),
+            padding: EdgeInsets.fromLTRB(widget.padding, 4, 16, 4),
             child: Row(
               children: [
                 if (widget.organizers.isNotEmpty)
-                  Icon(FeatherIcons.chevronDown, size: 12, color: hoverColor)
+                  Icon(
+                    expanded
+                        ? FeatherIcons.chevronDown
+                        : FeatherIcons.chevronRight,
+                    size: 12,
+                    color: context.colorScheme.onSurface,
+                  )
                 else
                   const SizedBox(width: 12),
                 const SizedBox(width: 4),
                 Icon(
-                  FeatherIcons.archive,
+                  FeatherIcons.folder,
                   size: 14,
-                  color: hover
-                      ? context.colorScheme.onPrimary
-                      : context.colorScheme.primaryContainer,
+                  color: context.colorScheme.onSurface,
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  widget.item.name,
-                  style:
-                      context.textTheme.bodyText1!.copyWith(color: hoverColor),
+                Expanded(
+                  child: Text(
+                    widget.item.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textTheme.bodyText1!.copyWith(
+                      color: context.colorScheme.onSurface,
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
         ),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 100),
-          child: expanded ? Column(children: widget.organizers) : Container(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            /* const SizedBox(width: 16),
+            const SizedBox(width: 8), */
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 100),
+                child: expanded
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: widget.organizers,
+                      )
+                    : Container(),
+              ),
+            ),
+          ],
         ),
       ],
     );

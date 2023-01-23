@@ -97,6 +97,7 @@ class _FlutterBookState extends State<FlutterBook> {
         GoRoute(
           path: '/',
           builder: (context, state) => Container(),
+          redirect: (context, state) => '/library',
         ),
 
         /// Application shell
@@ -106,7 +107,7 @@ class _FlutterBookState extends State<FlutterBook> {
             return ScaffoldWithNavPanel(
               navPanel: NavigationPanel(
                 header: widget.header,
-                headerPadding: widget.headerPadding,
+                //headerPadding: widget.headerPadding,
                 pages: widget.pages,
                 /* onComponentSelected: (child) {
                         navigator.currentState!
